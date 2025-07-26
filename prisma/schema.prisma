@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for storing user information from OAuth
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  googleId  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cvs      CV[]
+  histories History[]
+}
+
+// CV model for storing uploaded CV information
+model CV {
+  id        String   @id @default(cuid())
+  filename  String
+  filepath  String
+  content   String   // Parsed text content from the CV
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+// History model for storing generated cover letters
+model History {
+  id              String   @id @default(cuid())
+  jobDescription  String
+  generatedLetter String
+  createdAt       DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
